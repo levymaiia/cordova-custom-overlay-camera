@@ -13,9 +13,10 @@
 
 - (void)takePicture:(CDVInvokedUrlCommand*)command {
     NSString *filename = [command argumentAtIndex:0];
-    CGFloat quality = [[command argumentAtIndex:1] floatValue];
-    CGFloat targetWidth = [[command argumentAtIndex:2] floatValue];
-    CGFloat targetHeight = [[command argumentAtIndex:3] floatValue];
+    NSString *mask = [command argumentAtIndex:1];
+    CGFloat quality = [[command argumentAtIndex:2] floatValue];
+    CGFloat targetWidth = [[command argumentAtIndex:3] floatValue];
+    CGFloat targetHeight = [[command argumentAtIndex:4] floatValue];
     if (![UIImagePickerController isCameraDeviceAvailable:UIImagePickerControllerCameraDeviceRear]) {
         CDVPluginResult *result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"No rear camera detected"];
         [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
@@ -33,7 +34,7 @@
                                                         messageAsString:[[NSURL fileURLWithPath:imagePath] absoluteString]];
             [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
             [self.viewController dismissViewControllerAnimated:YES completion:nil];
-        }];
+        } Mask:mask];
         [self.viewController presentViewController:cameraViewController animated:YES completion:nil];
     }
 }

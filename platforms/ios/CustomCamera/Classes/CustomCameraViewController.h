@@ -10,6 +10,6 @@
 
 @interface CustomCameraViewController : UIViewController
 
-- (id)initWithCallback:(void(^)(UIImage*))callback;
+- (id)initWithCallback:(void(^)(UIImage*))callback Mask:(NSString *)maskfile;
 
 @end

@@ -50,15 +50,18 @@ public class CustomCameraActivity extends Activity {
     public static String IMAGE_URI = "ImageUri";
     public static String ERROR_MESSAGE = "ErrorMessage";
     public static int RESULT_ERROR = 2;
+    public static String MASKFILE = "Maskfile";
 
     private Camera camera;
     private RelativeLayout layout;
     private FrameLayout cameraPreviewView;
-    private ImageView borderTopLeft;
-    private ImageView borderTopRight;
-    private ImageView borderBottomLeft;
-    private ImageView borderBottomRight;
     private ImageButton captureButton;
+    private ImageView mask;
+    private double maskLeft,maskTop,maskWidth,maskHeight,maskAspectRatio;
+    /**
+     * ATTENTION: This was auto-generated to implement the App Indexing API.
+     * See https://g.co/AppIndexing/AndroidStudio for more information.
+     */
 
     @Override
     protected void onResume() {
@@ -112,12 +115,8 @@ public class CustomCameraActivity extends Activity {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         layout.setLayoutParams(layoutParams);
         createCameraPreview();
-        createTopLeftBorder();
-        createTopRightBorder();
-        createBottomLeftBorder();
-        createBottomRightBorder();
-        layoutBottomBorderImagesRespectingAspectRatio();
         createCaptureButton();
+        createMask();
         setContentView(layout);
     }
 
@@ -128,90 +127,36 @@ public class CustomCameraActivity extends Activity {
         layout.addView(cameraPreviewView);
     }
 
-    private void createTopLeftBorder() {
-        borderTopLeft = new ImageView(this);
-        setBitmap(borderTopLeft, "border_top_left.png");
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(dpToPixels(50), dpToPixels(50));
+    private void createMask() {
+        mask = new ImageView(this);
+        String filename = getIntent().getStringExtra(MASKFILE);
+        setBitmap(mask, filename);
+        mask.setScaleType(ScaleType.FIT_CENTER);
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
         layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        if (isXLargeScreen()) {
-            layoutParams.topMargin = dpToPixels(100);
-            layoutParams.leftMargin = dpToPixels(100);
-        } else if (isLargeScreen()) {
-            layoutParams.topMargin = dpToPixels(50);
-            layoutParams.leftMargin = dpToPixels(50);
+        int screenWidth = screenWidthInPixels();
+        int screenHeight = screenHeightInPixels() - dpToPixels(20) - captureButton.getDrawable().getIntrinsicHeight();
+        double screenAspectRatio = screenHeight * 1.0 / screenWidth;
+        maskAspectRatio = mask.getDrawable().getIntrinsicHeight() * 1.0 / mask.getDrawable().getIntrinsicWidth();
+        if (screenAspectRatio > maskAspectRatio) {
+            layoutParams.topMargin = (int) (screenHeight / 2 - screenWidth * 0.9 * maskAspectRatio / 2);
+            maskLeft = 0.05;
+            maskWidth = 0.9;
+            maskTop = layoutParams.topMargin*1.0 / screenHeightInPixels();
+            maskHeight = screenWidth*0.9*maskAspectRatio/screenHeightInPixels();
         } else {
-            layoutParams.topMargin = dpToPixels(10);
-            layoutParams.leftMargin = dpToPixels(10);
+            layoutParams.topMargin = (int) (screenHeight * 0.05);
+            maskLeft=(screenWidth/2-screenHeight*0.9/maskAspectRatio/2)/screenWidthInPixels();
+            maskWidth=screenHeight*0.9/maskAspectRatio/screenWidthInPixels();
+            maskTop=screenHeight*0.05/screenHeightInPixels();
+            maskHeight=screenHeight*0.9/screenHeightInPixels();
         }
-        borderTopLeft.setLayoutParams(layoutParams);
-        layout.addView(borderTopLeft);
-    }
-
-    private void createTopRightBorder() {
-        borderTopRight = new ImageView(this);
-        setBitmap(borderTopRight, "border_top_right.png");
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(dpToPixels(50), dpToPixels(50));
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        if (isXLargeScreen()) {
-            layoutParams.topMargin = dpToPixels(100);
-            layoutParams.rightMargin = dpToPixels(100);
-        } else if (isLargeScreen()) {
-            layoutParams.topMargin = dpToPixels(50);
-            layoutParams.rightMargin = dpToPixels(50);
-        } else {
-            layoutParams.topMargin = dpToPixels(10);
-            layoutParams.rightMargin = dpToPixels(10);
-        }
-        borderTopRight.setLayoutParams(layoutParams);
-        layout.addView(borderTopRight);
-    }
-
-    private void createBottomLeftBorder() {
-        borderBottomLeft = new ImageView(this);
-        setBitmap(borderBottomLeft, "border_bottom_left.png");
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(dpToPixels(50), dpToPixels(50));
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-        if (isXLargeScreen()) {
-            layoutParams.leftMargin = dpToPixels(100);
-        } else if (isLargeScreen()) {
-            layoutParams.leftMargin = dpToPixels(50);
-        } else {
-            layoutParams.leftMargin = dpToPixels(10);
-        }
-        borderBottomLeft.setLayoutParams(layoutParams);
-        layout.addView(borderBottomLeft);
-    }
-
-    private void createBottomRightBorder() {
-        borderBottomRight = new ImageView(this);
-        setBitmap(borderBottomRight, "border_bottom_right.png");
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(dpToPixels(50), dpToPixels(50));
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-        layoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        if (isXLargeScreen()) {
-            layoutParams.rightMargin = dpToPixels(100);
-        } else if (isLargeScreen()) {
-            layoutParams.rightMargin = dpToPixels(50);
-        } else {
-            layoutParams.rightMargin = dpToPixels(10);
-        }
-        borderBottomRight.setLayoutParams(layoutParams);
-        layout.addView(borderBottomRight);
-    }
-
-    private void layoutBottomBorderImagesRespectingAspectRatio() {
-        RelativeLayout.LayoutParams borderTopLeftLayoutParams = (RelativeLayout.LayoutParams)borderTopLeft.getLayoutParams();
-        RelativeLayout.LayoutParams borderTopRightLayoutParams = (RelativeLayout.LayoutParams)borderTopRight.getLayoutParams();
-        RelativeLayout.LayoutParams borderBottomLeftLayoutParams = (RelativeLayout.LayoutParams)borderBottomLeft.getLayoutParams();
-        RelativeLayout.LayoutParams borderBottomRightLayoutParams = (RelativeLayout.LayoutParams)borderBottomRight.getLayoutParams();
-        float height = (screenWidthInPixels() - borderTopRightLayoutParams.rightMargin - borderTopLeftLayoutParams.leftMargin) * ASPECT_RATIO;
-        borderBottomLeftLayoutParams.bottomMargin = screenHeightInPixels() - Math.round(height) - borderTopLeftLayoutParams.topMargin;
-        borderBottomLeft.setLayoutParams(borderBottomLeftLayoutParams);
-        borderBottomRightLayoutParams.bottomMargin = screenHeightInPixels() - Math.round(height) - borderTopRightLayoutParams.topMargin;
-        borderBottomRight.setLayoutParams(borderBottomRightLayoutParams);
+        mask.setLayoutParams(layoutParams);
+        mask.setMaxWidth((int) (screenWidth * 0.9));
+        mask.setMaxHeight((int) (screenHeight * 0.9));
+        mask.setAdjustViewBounds(true);
+        layout.addView(mask);
     }
 
     private int screenWidthInPixels() {
@@ -296,6 +241,11 @@ public class CustomCameraActivity extends Activity {
                 File capturedImageFile = new File(getCacheDir(), filename);
                 Bitmap capturedImage = getScaledBitmap(jpegData[0]);
                 capturedImage = correctCaptureImageOrientation(capturedImage);
+                int top=(int)(capturedImage.getHeight()*maskTop);
+                int height=(int)(capturedImage.getHeight()*maskHeight);
+                int width=(int)(height*1.0/maskAspectRatio);
+                int left=capturedImage.getWidth()/2-width/2;
+                capturedImage=Bitmap.createBitmap(capturedImage,left,top,width,height);
                 capturedImage.compress(CompressFormat.JPEG, quality, new FileOutputStream(capturedImageFile));
                 Intent data = new Intent();
                 data.putExtra(IMAGE_URI, Uri.fromFile(capturedImageFile).toString());

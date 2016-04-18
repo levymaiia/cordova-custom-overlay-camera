@@ -17,6 +17,7 @@ import static com.performanceactive.plugins.camera.CustomCameraActivity.QUALITY;
 import static com.performanceactive.plugins.camera.CustomCameraActivity.RESULT_ERROR;
 import static com.performanceactive.plugins.camera.CustomCameraActivity.TARGET_HEIGHT;
 import static com.performanceactive.plugins.camera.CustomCameraActivity.TARGET_WIDTH;
+import static com.performanceactive.plugins.camera.CustomCameraActivity.MASKFILE;
 
 
 public class CustomCamera extends CordovaPlugin {
@@ -33,9 +34,10 @@ public class CustomCamera extends CordovaPlugin {
 	    Context context = cordova.getActivity().getApplicationContext();
 	    Intent intent = new Intent(context, CustomCameraActivity.class);
 	    intent.putExtra(FILENAME, args.getString(0));
-	    intent.putExtra(QUALITY, args.getInt(1));
-	    intent.putExtra(TARGET_WIDTH, args.getInt(2));
-	    intent.putExtra(TARGET_HEIGHT, args.getInt(3));
+	    intent.putExtra(MASKFILE, args.getString(1));
+	    intent.putExtra(QUALITY, args.getInt(2));
+	    intent.putExtra(TARGET_WIDTH, args.getInt(3));
+	    intent.putExtra(TARGET_HEIGHT, args.getInt(4));
 	    cordova.startActivityForResult(this, intent, 0);
         return true;
     }
