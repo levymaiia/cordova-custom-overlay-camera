@@ -1,35 +1,33 @@
 ### Description
 
-Phonegap plugin which allows the caller to customise a camera preview, including a custom button and overlaying a border image in each corner.
+Cordova plugin which allows the caller to customise a camera preview, including a custom button and overlaying a mask image in center.
 
 ### Using the plugin
 
-- Add the plugin ID and version to the config.xml.
+- Install plugin.
 
 ```
-<gap:plugin name="com.performanceactive.plugins.camera" />
+cordova plugin add https://github.com/yesir1006/cordova-custom-overlay-camera.git
 ```
 
-- Add custom images for the capture button and borders to your project. The image locations under the Phonegap www directory cannot currently be modified.
+- Add custom images for the capture button and mask to your project. The image locations under the cordova www directory cannot currently be modified.
 
 |         Path           |        Description        |
 | -----------------------| --------------------------| 
-| www/img/cameraoverlay/border_top_left.png | The top left border image |
-| www/img/cameraoverlay/border_top_right.png | The top right border image |
-| www/img/cameraoverlay/border_bottom_left.png | The bottom left border image |
-| www/img/cameraoverlay/border_bottom_right.png | The bottom right border image |
+| www/img/cameraoverlay/your_mask_image_file_name.png | The center mask image |
 | www/img/cameraoverlay/capture_button.png | The default image for the capture button |
 | www/img/cameraoverlay/capture_button_pressed.png | The image for the capture button when tapped |
 
-- Call the plugin from JavaScript. The API is similiar to the Phonegap provided API but currently lacking some of its features.
+- Call the plugin from JavaScript. 
 
 ```js
-navigator.customCamera.getPicture(filename, success, failure, [ options ]);
+navigator.customCamera.getPicture(filename, maskfilename, success, failure, [ options ]);
 ```
 
 |         Parameter       |        Description        |
 | ----------------------- | --------------------------| 
 | filename | The filename to use for the captured image - the file will be stored in the local application cache. Note that the plugin only returns images in the JPG format. |
+| maskfilename | The filename of center mask image - the captured image will be cliped according to this mask. |
 | success | A callback which will be executed on successful capture with the file URI as the first parameter. |
 | error | A callback which will be executed if the capture fails with an error message as the first parameter. |
 | options | An optional object specifying capture options. |
@@ -49,13 +47,12 @@ Setting both targetWidth and targetHeight to -1 will disable image scaling. Sett
 ### Example
 
 ```js
-navigator.customCamera.getPicture(filename, function success(fileUri) {
+navigator.customCamera.getPicture('filename.jpg', 'mask.png', function success(fileUri) {
     alert("File location: " + fileUri);
 }, function failure(error) {
     alert(error);
 }, {
     quality: 80,
-    targetWidth: 120,
-    targetHeight: 120
+    targetWidth: 120
 });
 ```
